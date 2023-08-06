@@ -1,0 +1,207 @@
+//Por Renato Chavez
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+typedef struct nodo{ //Creacion de structs nodos
+    char letra;
+    int repe;
+    struct nodo* siguente;
+}NODO;
+
+void mostrar_menu(); //Prototipo Mostrar menu
+NODO *crear_nodo(char l); //Prototipo Crear nodo
+NODO *insertar_nodo(NODO *h, char l); //Prototipo Insertando nodo
+void mostrar_lista(NODO *h); //Prototipo Mostrar lista enlazda
+void busqueda_nodo(NODO *h);//Prototipo Buscando a un nodo
+NODO* ordenarasc(NODO *h);//Prototipo ordenar de menor a mayor
+NODO* ordenardesc(NODO *h);//Prototipo ordenar de mayor a mmenor
+
+int main(){
+    NODO *h=NULL; //Cabeza-lista del nodo
+    int menu,salir;
+    char textin; //Variable para leer el archivo .txt
+    char vtxt[999]; //Vector donde guarda datos del archivo
+    int i=0,j=0; //Contadores
+    FILE *archivo = fopen("textout.txt", "r"); //Abriendo el archivo
+    //Pasando datos al vector y despues de ello al nodo
+        for (i=0;(textin=fgetc(archivo))!=EOF;i++){ //Leyendo el texto
+            vtxt[i]=textin;
+        }
+        for (i=0;vtxt[i]!='\0';i++){
+            h=insertar_nodo(h,vtxt[i]);//Funcion para pasa r de vector a nodo e insertarlo 
+        }
+do{
+    system("cls");
+    mostrar_menu();
+    scanf("%d",&menu); 
+    switch (menu){ //Despligue del menu
+    case 1://Opcion 1 Leer el .txt
+        fclose(archivo); //Cerrar el archivo
+        archivo = fopen("textout.txt", "r");//Abriendo archivo
+        if (archivo == NULL){ //Si no abre
+            printf("Error en la apertura del fichero, intente nuevamente");
+            exit(0);
+        }
+        printf("%s\n",vtxt); //Muestra el texto en pantalla
+        printf("\n");
+        system("pause");
+        break;
+    case 2://Opcion 2 Mostrar la lista con su caracter y su repeticion
+        mostrar_lista(h);
+        system("pause");
+        break;
+    case 3://Ordenar de forma ascendiente
+        h=ordenarasc(h);
+        system("pause");
+        break;
+    case 4://Ordenar de forma descendiente
+        h=ordenardesc(h);
+        system("pause");
+        break;
+    case 5://Buscando a nodo 
+        busqueda_nodo(h);
+        system("pause");
+        break;
+    case 6:
+        salir=1; //Salir del switch
+        break;
+    default:
+        printf("Numero ingresado incorrecto. intente nuevamente.\n"); //Ingreso incorrecto
+        system("pause");
+        break;
+    }
+}while(salir==0);
+fclose(archivo); //Cerrando el archivo
+}
+
+//Funcion mostrar menu
+void mostrar_menu(){
+    printf("\n_______________________Menu_______________________\n\n");
+    printf("1.-Mostrar en pantalla el contenido del archivo .txt\n2.-Generar una lista dinamica con cada caracter y la frecuencia de ellos\n3.-Ordenar la lista por frecuencia creciente\n4.-Ordenar la lista por frecuencia decreciente\n5.-Buscar un caracter especifico e indicar frecuencia\n6.-Salir del programa");
+    printf("\n__________________________________________________\n>");
+}
+//Crear funcion nodo
+NODO*crear_nodo(char l){
+    NODO* nuevo;
+    nuevo=(NODO*)malloc(sizeof(NODO));
+    nuevo->letra=l;
+    nuevo->repe=1;
+    nuevo->siguente=NULL;
+    return nuevo;
+}
+//Funcion para insertar nodos
+NODO* insertar_nodo(NODO* h, char l){
+    NODO *nuevo;
+    NODO* auxj=h;
+    NODO* auxi=NULL;
+    int flag=0;//Esta flag es importante ya que sabe si se repite o no la palabra para ingresarlo en el nodo
+    while (auxj != NULL){
+        if(auxj->letra==l){
+            auxj->repe++;
+            flag=1;//Si se repite solo cuenta y se sale del if
+            break;
+        }
+        auxi=auxj;
+        auxj=auxj->siguente;
+    }
+    if (flag==0){//Si no se repite, se crea un nodo
+        nuevo=crear_nodo(l);
+        if (auxi==NULL){//Si es el primero
+            h=nuevo;
+        }else{//Si ya hay nodos en la lista...
+            auxi->siguente=nuevo;
+        }
+    }
+    return h;
+}
+//Mostrando los nodos y sus repeticiones
+void mostrar_lista(NODO* h){
+    NODO *aux;
+    aux=h;
+    if (aux!=NULL){
+        printf("<[Caracter]|||{Contador}>\n");
+        for(aux;aux!=NULL;aux=aux->siguente){
+            printf("<[%c]       |||       {%d}>\n",aux->letra,aux->repe);
+        }
+    }else{
+        printf("No hay elementos en el nodo\n");
+    }
+}
+//Funcion ordenar de menor a mayor
+NODO* ordenarasc(NODO *h){
+    NODO *auxi,*auxj,*aux; //Variable para reemplazar la cabeza
+    char helpc;
+    int help;//el auxiliar pero con ayuda psicologica
+    auxi=h;//Reemplazando el i
+    auxj=h;//Reemplazando el j
+    aux=h;//Mostrando con un aux particular
+    for (auxi;auxi!=NULL;auxi=auxi->siguente){//Metodo burbuja (reciclado:3)
+        for (auxj;auxj!=NULL;auxj=auxj->siguente){
+            if (auxi->repe<auxj->repe){
+                help=auxi->repe;
+                auxi->repe=auxj->repe;
+                auxj->repe=help;
+                helpc=auxi->letra;
+                auxi->letra=auxj->letra;
+                auxj->letra=helpc;
+            }
+        }
+        auxj=h;
+    }
+    printf("\n_______________________Orden ascediente_______________________\n");
+    for (aux;aux!=NULL;aux=aux->siguente){//Mostrando finalmente al usuario el orden ascendiente
+        printf("<[%c]       |||       {%d}>\n",aux->letra,aux->repe);
+    }
+    printf("__________________________________________________\n");
+    return h;
+}
+//Funcion ordenar de mayor a menor
+NODO* ordenardesc(NODO *h){
+    NODO *auxi,*auxj, *aux; //Variable para reemplazar la cabeza
+    char helpc;
+    int help;//el auxiliar pero con ayuda fisica
+    auxi=h;//Reemplazando el i
+    auxj=h;//Reemplazando el j
+    aux=h;//Mostrando con un aux particular
+    for (auxi;auxi!=NULL;auxi=auxi->siguente){//Metodo burbuja (reciclado:3)x2
+        for (auxj;auxj!=NULL;auxj=auxj->siguente){
+            if (auxi->repe>auxj->repe){
+                help=auxi->repe;
+                auxi->repe=auxj->repe;
+                auxj->repe=help;
+                helpc=auxi->letra;
+                auxi->letra=auxj->letra;
+                auxj->letra=helpc;
+            }
+        }
+        auxj=h;
+    }
+    printf("\n_______________________Orden descediente_______________________\n");
+    for (aux;aux!=NULL;aux=aux->siguente){//Mostrando finalmente al usuario el orden descendiente
+        printf("<[%c]       |||       {%d}>\n",aux->letra,aux->repe);
+    }
+    printf("__________________________________________________\n");
+    return h;
+}
+//Funcion de busqueda de un caracter en la lista de nodos
+void busqueda_nodo(NODO *h){
+    NODO *aux;//recorrer
+    int flag=0;//Para saber si hay elementos
+    char b;//Caracter a comparar
+    aux=h;
+        fflush(stdin);
+        printf("Que caracter desea buscar:");
+        scanf("%c",&b);
+        for (aux;aux!=NULL;aux=aux->siguente){
+            if (b==aux->letra){//Comparacion
+                printf("\nLa letra %c esta en la lista con una frecuencia de %d",aux->letra,aux->repe);
+                printf("\n");
+                flag=1;
+                return 0;
+            }
+        }
+        if (flag==0){//Si sigue siendo 0 no hay elementos
+            printf("\nLa busqueda del elemento que desea no esta disponible en la lista, intente nuevamente\n");
+        }
+}
