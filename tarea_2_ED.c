@@ -39,20 +39,34 @@ int main(){
             system("pause");
             break;
         case 2://Opcion 2 Cancelar reserva del vuelo
-            printf("\n\tNumero de su reserva para cancelar\t\n>");
+            if(rtree==NULL){
+                printf("\n\tNo hay vuelos registrados\t\n>");
+                system("pause");
+                break;
+			}
+			printf("\n\tNumero de su reserva para cancelar\t\n>");
             scanf("%d",&en);
             rtree=esearching(rtree,en);
-            printf("\n\tSe ha cancelado la reserva\n\t");
             system("pause");
             break;
         case 3://Opcion 3 Buscar reserva del vuelo
-            printf("\n\tNumero de reserva que desea buscar:\t\n>");
-            scanf("%d",&id2);//Busqueda de ID==key
+            if(rtree==NULL){
+                printf("\n\tNo hay vuelos registrados\t\n>");
+                system("pause");
+                break;
+			}
+			printf("\n\tNumero de reserva que desea buscar:\t\n>");
+			scanf("%d",&id2);//Busqueda de ID==key
             searchingforid(rtree,id2);
             system("pause");
             break;
         case 4://Mostrar reservas por destino del vuelo
-            printf("\n\tNombre del destino que desea buscar\t\n>");
+            if(rtree==NULL){
+                printf("\n\tNo hay vuelos registrados\t\n>");
+                system("pause");
+                break;
+			}
+			printf("\n\tNombre del destino que desea buscar\t\n>");
             fflush(stdin);
             fgets(boleto, sizeof(boleto),stdin);
             boleto[strcspn(boleto,"\n")]= '\0';
@@ -60,13 +74,14 @@ int main(){
             system("pause");
             break;
         case 5://Mostrar reservas ordenadas del vuelo
-        if (rtree==NULL){//Si no hay nodos en la raiz
-            printf("\n\tNo hay nodos, intente nuevamente\n\t");
-        }else{//Si hay muestra
-        printf("\n\tEstos son los vuelos en orden de ID:\t\n");
-        printf("ID\t|\tDestino\t|\tNombre del comprador\t\n");
+            if(rtree==NULL){
+                printf("\n\tNo hay vuelos registrados\t\n>");
+                system("pause");
+                break;
+			}
+            printf("\n\tEstos son los vuelos en orden de ID:\t\n");
+            printf("ID\t|\tDestino\t\t|Nombre del comprador|\n");
             inorden(rtree);// Muestra en inorden los vuelos
-        }
             system("pause");
             break;
         case 6:
@@ -85,7 +100,7 @@ int main(){
 //Funcion mostrar menu
 void display_menu(){
     printf("\n_______________________\tBienvenido aventurero a Vuelos De Dragon!_______________________\n");
-    printf("\t\n1.-Realizar reserva de vuelo\n2.-Cancelar reserva de vuelo\n3.-Buscar reserva de vuelo por numero \n4.-Buscar reserva por destino\n5.-Reservas por orden de llegada\n\t");
+    printf("\t\n1.-Realizar reserva de vuelo\n2.-Cancelar reserva de vuelo\n3.-Buscar reserva de vuelo por numero \n4.-Buscar reserva por destino\n5.-Reservas por orden de llegada\n6.-Salir\n\t");
     printf("\n\t__________________________________________________\t\n>");
 }
 //Funcion para crear nodos en un arbol binario
@@ -131,7 +146,7 @@ NODET *mininum(NODET *renode){
 NODET *esearching(NODET *rtree, int en){
     NODET *aux;
     if (rtree==NULL){//Arbol vacio
-        printf("\n\tNo hay nodo para eliminar, intente nuevamente\n\t");
+        printf("\n\tNo hay vuelo para eliminar, intente nuevamente\n\t");
         return rtree;
     }else if(en<rtree->key){//Buscando por izquierda
         rtree->left=esearching(rtree->left,en);
@@ -141,40 +156,43 @@ NODET *esearching(NODET *rtree, int en){
         if (rtree->left==NULL){//Si no hay a la izquierda, reemplazo con el hijo derecho//Caso hijo unico
             aux=rtree->right;
             free(rtree);
+            printf("\n\tSe ha cancelado la reserva\n\t");
             return aux;
         }else if(rtree->right==NULL){//Si no hay a la derecha, reemplazo con el hijo izquierdo//Caso hijo unico
             aux=rtree->left;
             free(rtree);
+            printf("\n\tSe ha cancelado la reserva\n\t");
             return aux;
         }
-        aux=mininum(rtree->right);
+        aux=mininum(rtree->right);//Si tiene dos hijos
         rtree->key=aux->key;
         strcpy(rtree->name,aux->name);
         strcpy(rtree->ticket,aux->ticket);
         rtree->right=esearching(rtree->right,aux->key);
+        printf("\n\tSe ha cancelado la reserva\n\t");
     }
     return rtree;
 }
 
 //Funcion para encontrar el vuelo con la id
-void searchingforid(NODET *rtree, int id2){//probar boolean //Mejorar else
+void searchingforid(NODET *rtree, int id2){
     if (rtree!=NULL){
         searchingforid(rtree->left,id2);
         if (rtree->key==id2){
-        printf("ID\t|\tDestino\t|Nombre del comprador\n");
-        printf("%d\t|\t%s|%s\t\n",rtree->key,rtree->ticket, rtree->name);
+        printf("ID\t|\tDestino\t\t|Nombre del comprador\n");
+        printf("%d\t|\t%s\t\t|%s\t\n",rtree->key,rtree->ticket, rtree->name);
         }
         searchingforid(rtree->right,id2);
     }
 }
 
 //Funcion para encontrar el vuelo con el destino
-void searchingfordest(NODET *rtree, char boleto[]){//probar boolean //Mejorar else
+void searchingfordest(NODET *rtree, char boleto[]){
     if (rtree!=NULL){
         searchingfordest(rtree->left,boleto);
         if (strcmp(rtree->ticket,boleto) ==0){
-            printf("ID\t|\tDestino\t|Nombre del comprador\n");
-            printf("%d\t|\t%s|%s\t\n",rtree->key,rtree->ticket, rtree->name);
+            printf("ID\t|\tDestino\t\t|Nombre del comprador\n");
+            printf("%d\t|\t%s\t\t|%s\t\n",rtree->key,rtree->ticket, rtree->name);
         }
         searchingfordest(rtree->right,boleto);
     }
@@ -184,7 +202,7 @@ void searchingfordest(NODET *rtree, char boleto[]){//probar boolean //Mejorar el
 void inorden(NODET *rtree){
     if (rtree!=NULL){
         inorden(rtree->left);
-        printf("%d\t|\t%s|\t%s\t\n",rtree->key,rtree->ticket, rtree->name);
+        printf("%d\t|\t%s\t\t|\t%s\t|\n",rtree->key,rtree->ticket, rtree->name);
         inorden(rtree->right);
     }
 }
